@@ -1,0 +1,30 @@
+{
+  "name": "korex-back",
+  "version": "1.0.0",
+  "description": "Node JS backend application in Serverless Framework",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bosco-mama/korex-back.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Bosco-mama/korex-back/issues"
+  },
+  "homepage": "https://github.com/Bosco-mama/korex-back#readme",
+  "devDependencies": {
+    "jest": "^27.0.1",
+    "serverless-bundle": "^4.3.0"
+  },
+  "dependencies": {
+    "date-and-time": "^1.0.0",
+    "http-errors": "^1.8.0",
+    "serverless-pseudo-parameters": "^2.5.0",
+    "typeorm-aurora-data-api-driver": "^2.1.0"
+  }
+}
