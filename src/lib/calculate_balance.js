@@ -1,4 +1,4 @@
-function calculate_balance(
+export function calculate_balance(
   old_amount,
   delta_amount,
   booking_type,
@@ -21,7 +21,7 @@ function calculate_balance(
   //oder Einnahme
   else if (
     (booking_type == "Einnahme" && operation == "C") ||
-    ((booking_type == "Ausgabe" || booking_type == "Privat") && operation == "C")
+    ((booking_type == "Ausgabe" || booking_type == "Privat") && operation == "D")
   ) {
     new_amount = old_amount + delta_amount;
   } else {
@@ -30,4 +30,4 @@ function calculate_balance(
 
   return new_amount;
 }
-module.exports.calculate_balance = calculate_balance;
+
