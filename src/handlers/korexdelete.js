@@ -8,7 +8,7 @@ import { calculate_booking } from "../lib/calculate_booking.js";
 import { calculate_balance } from "../lib/calculate_balance.js";
 import { get_db_params } from "../lib/get_db_params.js";
 
-var ergebnis, old_amount, new_amount, delta_amount, counter;
+var ergebnis, old_amount, new_amount, delta_amount, counter, http_response;
 
 exports.delete = async function (event, context) {
   console.log(event);
@@ -78,6 +78,50 @@ exports.delete = async function (event, context) {
       ergebnis = await db_action(params_stand, counter++);
     }
     let select_response = ergebnis;
+    console.log('select response',select_response);
+ //   console.log(select_response.records[0][0]);
+    console.log('Data length',ergebnis.records.length);
+    if (ergebnis.records.length==0){
+      http_response = {
+          statusCode: 400,
+          headers: {
+            "Access-Control-Allow-Origin": "*", // Or use wildard * for testing
+          },
+          body: JSON.stringify({
+            message: "Booking ID not found. "
+          }),
+        };
+        return http_response;}
+/*
+ //test
+
+            var rows = [];
+              var cols =[];
+
+              // build an array of columns
+              ergebnis.columnMetadata.map((v, i) => {
+                cols.push(v.name)
+              });
+
+              // build an array of rows: { key=>value }
+              ergebnis.records.map((r) => {
+                var row = {}
+                r.map((v, i) => {
+                  if (v.stringValue !== "undefined") { row[cols[i]] = v.stringValue; }
+                  else if (v.blobValue !== "undefined") { row[cols[i]] = v.blobValue; }
+                  else if (v.doubleValue !== "undefined") { row[cols[i]] = v.doubleValue; }
+                  else if (v.longValue !== "undefined") { row[cols[i]] = v.longValue; }
+                  else if (v.booleanValue !== "undefined") { row[cols[i]] = v.booleanValue; }
+                  else if (v.isNull) { row[cols[i]] = null; }
+                })
+                rows.push(row)
+              });
+
+      console.log('Found rows: ' , rows.length, 'Wert', rows[0]);
+
+//ende TEST
+*/
+
     let amount_obj = select_response.records[0][0];
     let old_amount = parseInt(Object.values(amount_obj)[0]);
     let delta_obj = select_response.records[0][1];
@@ -89,6 +133,7 @@ exports.delete = async function (event, context) {
 
     //calculate new balance , operation is delete
     let operation = "D";
+
     let new_balance = calculate_balance(
       old_amount,
       delta_amount,
@@ -208,7 +253,7 @@ exports.delete = async function (event, context) {
     ).promise();
 
     //http response
-    const http_response = {
+     http_response = {
       statusCode: 200,
       headers: {
         "Access-Control-Allow-Origin": "*", // Or use wildard * for testing
@@ -224,7 +269,7 @@ exports.delete = async function (event, context) {
     // Handle error
     console.error(err);
     //rollback
-    if (transaction_id) {
+    if (trans_id) {
       let params_rollback = {
         resourceArn: process.env.DB_AURORACLUSTER_ARN /* required */,
         secretArn: process.env.DB_SECRETSTORE_ARN /* required */,

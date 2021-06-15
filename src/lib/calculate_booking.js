@@ -18,9 +18,9 @@ export function calculate_booking(amount, tax_rate, booking_type) {
     delta_amount = 0;
   }
   //Die Zahlungen an die Steuerkasse werden nur in der Steuertabelle gespeichert
-    else if (booking_type == "Privat") {
-       delta_amount = amount_netto;
-    }
+  else if (booking_type == "Privat") {
+    delta_amount = amount_netto;
+  }
   let amount_booking = {
     amount_netto: amount_netto,
     amount_tax: amount_tax,

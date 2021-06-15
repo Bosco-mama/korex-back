@@ -5,6 +5,7 @@ plugins:
   - serverless-bundle
   - serverless-pseudo-parameters
 
+
 provider:
   name: aws
   runtime: nodejs12.x
@@ -33,6 +34,8 @@ provider:
       Action:
         - s3:*
       Resource: "*"
+  logs:
+    httpApi: true
 
 functions:
   korexalldata:

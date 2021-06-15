@@ -94,7 +94,7 @@ exports.save = async function (event, context) {
     old_amount = parseInt(Object.values(amount_obj)[0]);
 
     //calculate amounts for booking
-     let amount_booking = calculate_booking(amount, tax_rate, booking_type);
+    let amount_booking = calculate_booking(amount, tax_rate, booking_type);
     //calculate new balance , operation is create
     let operation = "C";
     let new_balance = calculate_balance(
@@ -229,7 +229,7 @@ exports.save = async function (event, context) {
       secretArn: process.env.DB_SECRETSTORE_ARN,
       transactionId: trans_id,
     };
-     let transaction_status_com = await RDS.commitTransaction(
+    let transaction_status_com = await RDS.commitTransaction(
       params_trans_commit_rollback
     ).promise();
 
