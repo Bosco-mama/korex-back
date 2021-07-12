@@ -3,7 +3,7 @@ const RDS = new AWS.RDSDataService();
 import createError from "http-errors";
 import { v4 as uuid } from "uuid";
 import date from "date-and-time";
-import { determine_null } from "../lib/determine_null.js";
+
 import { calculate_booking } from "../lib/calculate_booking.js";
 import { calculate_balance } from "../lib/calculate_balance.js";
 import { get_db_params } from "../lib/get_db_params.js";

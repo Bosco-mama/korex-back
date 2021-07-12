@@ -4,8 +4,9 @@ import createError from "http-errors";
 import { v4 as uuid } from "uuid";
 import date from "date-and-time";
 import { determine_null } from "../lib/determine_null.js";
-import { calculate_booking } from "../lib/calculate_booking.js";
 import { calculate_balance } from "../lib/calculate_balance.js";
+//import { calculate_booking } from "../lib/calculate_booking.js";
+import { map_db_response } from "../lib/map_db_response.js";
 import { get_db_params } from "../lib/get_db_params.js";
 
 var ergebnis, old_amount, new_amount, delta_amount, counter, http_response;
@@ -65,7 +66,7 @@ exports.delete = async function (event, context) {
 
     //get the current balance
     let sqlStatement_stand =
-      "select ws.amount, bo1.amount,bo1.booking_type , bo1.booking_account from korex.water_stand ws, korex.booking bo1 where ws.booking_account=(select bo2.booking_account from korex.booking bo2 where  bo2.booking_id= :booking_uuid) and bo1.booking_id=:booking_uuid;";
+      "select ws.amount as amount_waterstand, bo1.amount as amount_booking,bo1.booking_type as booking_type , bo1.booking_account as booking_account from korex.water_stand ws, korex.booking bo1 where ws.booking_account=(select bo2.booking_account from korex.booking bo2 where  bo2.booking_id= :booking_uuid) and bo1.booking_id=:booking_uuid;";
     let sqlParameter_stand = [
       { name: "booking_uuid", value: { stringValue: booking_uuid } },
     ];
@@ -77,72 +78,54 @@ exports.delete = async function (event, context) {
     while (ergebnis == "SLEEPING" && counter < 5) {
       ergebnis = await db_action(params_stand, counter++);
     }
-    let select_response = ergebnis;
-    console.log('select response',select_response);
- //   console.log(select_response.records[0][0]);
-    console.log('Data length',ergebnis.records.length);
-    if (ergebnis.records.length==0){
+
+    //   console.log('select response',JSON.stringify(select_response, null,1));
+    //   console.log(select_response.records[0][0]);
+    //    console.log('Data length',ergebnis.records.length);
+    if (ergebnis.records.length == 0) {
       http_response = {
-          statusCode: 400,
-          headers: {
-            "Access-Control-Allow-Origin": "*", // Or use wildard * for testing
-          },
-          body: JSON.stringify({
-            message: "Booking ID not found. "
-          }),
-        };
-        return http_response;}
-/*
- //test
+        statusCode: 400,
+        headers: {
+          "Access-Control-Allow-Origin": "*", // Or use wildard * for testing
+        },
+        body: JSON.stringify({
+          message: "Booking ID not found. ",
+        }),
+      };
+      return http_response;
+    }
 
-            var rows = [];
-              var cols =[];
-
-              // build an array of columns
-              ergebnis.columnMetadata.map((v, i) => {
-                cols.push(v.name)
-              });
-
-              // build an array of rows: { key=>value }
-              ergebnis.records.map((r) => {
-                var row = {}
-                r.map((v, i) => {
-                  if (v.stringValue !== "undefined") { row[cols[i]] = v.stringValue; }
-                  else if (v.blobValue !== "undefined") { row[cols[i]] = v.blobValue; }
-                  else if (v.doubleValue !== "undefined") { row[cols[i]] = v.doubleValue; }
-                  else if (v.longValue !== "undefined") { row[cols[i]] = v.longValue; }
-                  else if (v.booleanValue !== "undefined") { row[cols[i]] = v.booleanValue; }
-                  else if (v.isNull) { row[cols[i]] = null; }
-                })
-                rows.push(row)
-              });
-
-      console.log('Found rows: ' , rows.length, 'Wert', rows[0]);
-
-//ende TEST
-*/
-
-    let amount_obj = select_response.records[0][0];
+    let select_balance = ergebnis;
+    let balance_columns = [
+      "amount_waterstand",
+      "amount_booking",
+      "booking_type",
+      "booking_account",
+    ];
+    let balance_res = map_db_response(balance_columns, select_balance);
+    /*  let amount_obj = select_response.records[0][0];
     let old_amount = parseInt(Object.values(amount_obj)[0]);
     let delta_obj = select_response.records[0][1];
     let delta_amount = parseInt(Object.values(delta_obj)[0]);
     let booking_type_obj = select_response.records[0][2];
     let booking_type = Object.values(booking_type_obj)[0];
     let booking_account_obj = select_response.records[0][3];
-    let booking_account = Object.values(booking_account_obj)[0];
+    let booking_account = Object.values(booking_account_obj)[0];*/
 
     //calculate new balance , operation is delete
     let operation = "D";
 
     let new_balance = calculate_balance(
-      old_amount,
-      delta_amount,
-      booking_type,
+      balance_res[0].amount_waterstand,
+      balance_res[0].amount_booking,
+      balance_res[0].booking_type,
       operation
     );
-
+    let booking_type = balance_res[0].booking_type;
+    let booking_account = balance_res[0].booking_account;
+    console.log(new_balance, "new balance1");
     new_balance = parseInt(new_balance);
-    console.log(new_balance, "new balance");
+    console.log(new_balance, "new balance2");
     //start transaction
 
     let params_trans = {
@@ -253,7 +236,7 @@ exports.delete = async function (event, context) {
     ).promise();
 
     //http response
-     http_response = {
+    http_response = {
       statusCode: 200,
       headers: {
         "Access-Control-Allow-Origin": "*", // Or use wildard * for testing

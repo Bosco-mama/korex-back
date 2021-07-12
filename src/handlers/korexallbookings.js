@@ -1,6 +1,7 @@
 const AWS = require("aws-sdk");
 const RDS = new AWS.RDSDataService();
 import createError from "http-errors";
+//const db_par = require("../lib/get_db_params.js"); ToDo
 
 exports.send = async function (event, context) {
   console.log(event);

@@ -5,8 +5,7 @@ export function calculate_booking(amount, tax_rate, booking_type) {
 
   //falls es sich um Einnahme oder Ausgabe handelt und Steuersatz gefüllt ist
   if (
-    tax_rate > 0 &&
-    (booking_type == "Ausgabe" || booking_type == "Einnahme")
+    booking_type == "Ausgabe" || booking_type == "Einnahme"
   ) {
     amount_tax = amount * (tax_rate / (tax_rate + 100));
     amount_netto = amount * (100 / (tax_rate + 100));
