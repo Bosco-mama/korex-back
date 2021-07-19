@@ -1,5 +1,9 @@
-export function calculate_balance(old_amount,delta_amount,booking_type,operation)  {
-
+export function calculate_balance(
+  old_amount,
+  delta_amount,
+  booking_type,
+  operation
+) {
   //operation c= create, d=delete
   // Einnahme wird bei create +
   //Einnahme wird bei delete -
@@ -27,4 +31,3 @@ export function calculate_balance(old_amount,delta_amount,booking_type,operation
 
   return new_amount;
 }
-

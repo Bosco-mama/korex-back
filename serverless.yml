@@ -56,6 +56,15 @@ functions:
           method: POST
           path: /createbooking
           cors: true
+  korexcreateshareholder:
+    handler: src/handlers/korexcreateshareholder.save
+    timeout: 45
+    maximumRetryAttempts: 1
+    events:
+      - http:
+          method: POST
+          path: /shareholder/{shareholder}
+          cors: true
   korexdelete:
     handler: src/handlers/korexdelete.delete
     timeout: 29

@@ -4,9 +4,7 @@ export function calculate_booking(amount, tax_rate, booking_type) {
   let delta_amount = 0;
 
   //falls es sich um Einnahme oder Ausgabe handelt und Steuersatz gefüllt ist
-  if (
-    booking_type == "Ausgabe" || booking_type == "Einnahme"
-  ) {
+  if (booking_type == "Ausgabe" || booking_type == "Einnahme") {
     amount_tax = amount * (tax_rate / (tax_rate + 100));
     amount_netto = amount * (100 / (tax_rate + 100));
     delta_amount = Math.abs(amount_netto);
