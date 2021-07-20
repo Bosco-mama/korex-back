@@ -52,17 +52,18 @@ exports.save = async function (event, context) {
     let sqlStatement_stand = `UPDATE korex.shareholder SET project = "${project}" WHERE shareholder_id= "${shareholder}";`;
     let params_stand = get_db_params(sqlStatement_stand);
 
+    //checking if the request has a valid project
     if (!project) {
-      throw new createError.NotFound(`Shareholder "${shareholder}" not found!`);
+      throw new createError.NotFound(`project "${project}" not found!`);
       {
-        console.error("Validation error");
+        console.error("request error project not found");
         http_response = {
           statusCode: 400,
           headers: {
-            "Access-Control-Allow-Origin": "*", // Or use wildard * for testing
+            "request error project not found": "*", // Or use wildard * for testing
           },
           body: JSON.stringify({
-            message: "Validation error.",
+            message: "request error project not found",
           }),
         };
         return http_response;
@@ -73,6 +74,29 @@ exports.save = async function (event, context) {
     let ergebnis = "SLEEPING";
     while (ergebnis == "SLEEPING" && counter < 5) {
       ergebnis = await db_action(params_stand, counter++);
+      console.log(
+        "numberOfRecordsUpdated ist",
+        JSON.stringify(ergebnis.numberOfRecordsUpdated)
+      );
+      //console.log("ergebnis ist", JSON.stringify(ergebnis);
+    }
+
+    //check if Shareholder valid by checking if numberOfRecordsUpdated is 0 or 1
+    if (JSON.stringify(ergebnis.numberOfRecordsUpdated) == 0) {
+      throw new createError.NotFound(`Shareholder "${shareholder}" not found!`);
+      {
+        console.error("Shareholder not found");
+        http_response = {
+          statusCode: 400,
+          headers: {
+            "Shareholder not found": "*", // Or use wildard * for testing
+          },
+          body: JSON.stringify({
+            message: "Shareholder not found",
+          }),
+        };
+        return http_response;
+      }
     }
 
     const http_response = {
@@ -90,12 +114,6 @@ exports.save = async function (event, context) {
     // Handle error
     console.error(err);
     //rollback
-
-    let params_rollback = {
-      resourceArn: process.env.DB_AURORACLUSTER_ARN /* required */,
-      secretArn: process.env.DB_SECRETSTORE_ARN /* required */,
-      transactionId: trans_id /* required */,
-    };
 
     http_response = {
       statusCode: 400,
