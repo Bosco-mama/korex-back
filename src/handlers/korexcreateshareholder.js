@@ -54,20 +54,17 @@ exports.save = async function (event, context) {
 
     //checking if the request has a valid project
     if (!project) {
-      throw new createError.NotFound(`project "${project}" not found!`);
-      {
-        console.error("request error project not found");
-        http_response = {
-          statusCode: 400,
-          headers: {
-            "request error project not found": "*", // Or use wildard * for testing
-          },
-          body: JSON.stringify({
-            message: "request error project not found",
-          }),
-        };
-        return http_response;
-      }
+      console.error("request error project not found");
+      http_response = {
+        statusCode: 400,
+        headers: {
+          "request error project not found": "*", // Or use wildard * for testing
+        },
+        body: JSON.stringify({
+          message: "request error project not found",
+        }),
+      };
+      return http_response;
     }
     //the serverless DB is sleeping
     counter = 0;
@@ -83,20 +80,17 @@ exports.save = async function (event, context) {
 
     //check if Shareholder valid by checking if numberOfRecordsUpdated is 0 or 1
     if (JSON.stringify(ergebnis.numberOfRecordsUpdated) == 0) {
-      throw new createError.NotFound(`Shareholder "${shareholder}" not found!`);
-      {
-        console.error("Shareholder not found");
-        http_response = {
-          statusCode: 400,
-          headers: {
-            "Shareholder not found": "*", // Or use wildard * for testing
-          },
-          body: JSON.stringify({
-            message: "Shareholder not found",
-          }),
-        };
-        return http_response;
-      }
+      console.error("Shareholder not found");
+      http_response = {
+        statusCode: 400,
+        headers: {
+          "Shareholder not found": "*", // Or use wildard * for testing
+        },
+        body: JSON.stringify({
+          message: "Shareholder not found",
+        }),
+      };
+      return http_response;
     }
 
     const http_response = {
