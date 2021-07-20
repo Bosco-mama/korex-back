@@ -48,9 +48,9 @@ exports.save = async function (event, context) {
     let project = requestBody.project;
     const shareholder = event.pathParameters.shareholder;
 
-    //get the current balance
-    let sqlStatement_stand = `UPDATE korex.shareholder SET project = "${project}" WHERE shareholder_id= "${shareholder}";`;
-    let params_stand = get_db_params(sqlStatement_stand);
+    //update the project in DB
+    let sqlStatement_project = `UPDATE korex.shareholder SET project = "${project}" WHERE shareholder_id= "${shareholder}";`;
+    let params_project = get_db_params(sqlStatement_stand);
 
     if (!project) {
       throw new createError.NotFound(`Shareholder "${shareholder}" not found!`);
@@ -72,7 +72,8 @@ exports.save = async function (event, context) {
     counter = 0;
     let ergebnis = "SLEEPING";
     while (ergebnis == "SLEEPING" && counter < 5) {
-      ergebnis = await db_action(params_stand, counter++);
+      ergebnis = await db_action(params_project, counter++);
+      console.log('ergebnis db',JSON.stringify(ergebnis) );
     }
 
     const http_response = {
@@ -89,13 +90,7 @@ exports.save = async function (event, context) {
   } catch (err) {
     // Handle error
     console.error(err);
-    //rollback
 
-    let params_rollback = {
-      resourceArn: process.env.DB_AURORACLUSTER_ARN /* required */,
-      secretArn: process.env.DB_SECRETSTORE_ARN /* required */,
-      transactionId: trans_id /* required */,
-    };
 
     http_response = {
       statusCode: 400,

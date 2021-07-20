@@ -1,9 +1,5 @@
-export function calculate_balance(
-  old_amount,
-  delta_amount,
-  booking_type,
-  operation
-) {
+export function calculate_balance(old_amount,delta_amount,booking_type,operation)  {
+
   //operation c= create, d=delete
   // Einnahme wird bei create +
   //Einnahme wird bei delete -
@@ -12,7 +8,7 @@ export function calculate_balance(
 
   var new_amount = 0.0;
   if (
-    ((booking_type == "Ausgabe" || booking_type == "Privat") &&
+    ((booking_type == "Ausgabe" || booking_type == "Privatentnahme") &&
       operation == "C") ||
     (booking_type == "Einnahme" && operation == "D")
   ) {
@@ -21,7 +17,7 @@ export function calculate_balance(
   //oder Einnahme
   else if (
     (booking_type == "Einnahme" && operation == "C") ||
-    ((booking_type == "Ausgabe" || booking_type == "Privat") &&
+    ((booking_type == "Ausgabe" || booking_type == "Privatentnahme") &&
       operation == "D")
   ) {
     new_amount = old_amount + delta_amount;

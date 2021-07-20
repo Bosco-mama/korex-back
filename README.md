@@ -8,7 +8,7 @@ POST
 "amount": 500.00 ,
 "tax_rate_number":19,
 "booking_text": "Testbuchung Einnahme" ,
-"booking_type": "Privat" }
+"booking_type": "Privatentnahme" }
 
 GET
 ...test/bookings/{booking_account}

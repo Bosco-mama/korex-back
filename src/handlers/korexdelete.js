@@ -141,7 +141,7 @@ exports.delete = async function (event, context) {
     if (
       booking_type == "Einnahme" ||
       booking_type == "Ausgabe" ||
-      booking_type == "Privat"
+      booking_type == "Privatentnahme"
     ) {
       // delete from booking
       let sqlStatement_insertBooking =

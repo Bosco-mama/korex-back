@@ -70,6 +70,11 @@ exports.send = async function (event, context) {
     let balance_raw = Object.values(balance_raw_obj)[0];
     // balance from gemeinschaft will be splitted to all 4 accounts
     let balance_update = balance_raw + Object.values(balance_gem_obj)[0] / 4;
+    //for the account gemeintschaft, there is no balance_update
+
+    if (booking_account == "gemeinschaft") {
+      balance_update = 0;
+    }
     let shareholder_project = Object.values(shareholder_project_obj)[0];
     // select all bookings for account
     let sqlStatement_booking =
@@ -113,7 +118,7 @@ exports.send = async function (event, context) {
       booking_obj.amount_history = Object.values(amount_history_obj)[0];
       bookings.push(booking_obj);
     });
-    console.log(bookings + "BOOKINGS");
+
 
     //Put the balance data to response
 
@@ -122,6 +127,7 @@ exports.send = async function (event, context) {
     booking_response.balance_raw = Number(balance_raw).toFixed(2);
     booking_response.balance_updated = Number(balance_update).toFixed(2);
     booking_response.booking = bookings;
+   // console.log(JSON.stringify(booking_response), "BOOKINGS");
     const http_response = {
       statusCode: 200,
       headers: {

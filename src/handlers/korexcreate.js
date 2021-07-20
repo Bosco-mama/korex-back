@@ -122,7 +122,7 @@ exports.save = async function (event, context) {
     if (
       booking_type == "Einnahme" ||
       booking_type == "Ausgabe" ||
-      booking_type == "Privat"
+      booking_type == "Privatentnahme"
     ) {
       //save booking
 
