@@ -1,7 +1,8 @@
 const AWS = require("aws-sdk");
 const RDS = new AWS.RDSDataService();
 import createError from "http-errors";
-//const db_par = require("../lib/get_db_params.js"); ToDo
+import { map_db_response } from "../lib/map_db_response.js";
+import { get_db_params } from "../lib/get_db_params.js";
 
 exports.send = async function (event, context) {
   console.log(event);
@@ -33,7 +34,6 @@ exports.send = async function (event, context) {
         await sleep(5000);
         // höchstens 5 mal versuchen
         return "SLEEPING";
-        //          save_to_db(params, counter++);
       }
     }
   }
@@ -49,13 +49,10 @@ exports.send = async function (event, context) {
       { name: "booking_gem", value: { stringValue: "gemeinschaft" } },
     ];
 
-    let params_balance = {
-      secretArn: process.env.DB_SECRETSTORE_ARN,
-      resourceArn: process.env.DB_AURORACLUSTER_ARN,
-      sql: sqlStatement_balance,
-      parameters: sqlParameter_balance,
-      database: process.env.DB_NAME,
-    };
+    let params_balance = get_db_params(
+      sqlStatement_balance,
+      sqlParameter_balance
+    );
 
     let select_balance_response = await db_action(params_balance, counter);
 
@@ -64,6 +61,7 @@ exports.send = async function (event, context) {
     while (select_balance_response == "SLEEPING" && counter < 4) {
       select_balance_response = await db_action(params_balance, counter);
     }
+
     let shareholder_project_obj = select_balance_response.records[0][0];
     let balance_raw_obj = select_balance_response.records[0][1];
     let balance_gem_obj = select_balance_response.records[0][2];
@@ -82,43 +80,27 @@ exports.send = async function (event, context) {
     let sqlParameter_booking = [
       { name: "booking_account", value: { stringValue: booking_account } },
     ];
-    let params_booking = {
-      secretArn: process.env.DB_SECRETSTORE_ARN,
-      resourceArn: process.env.DB_AURORACLUSTER_ARN,
-      sql: sqlStatement_booking,
-      parameters: sqlParameter_booking,
-      database: process.env.DB_NAME,
-    };
-    console.log(params_booking);
+    let params_booking = get_db_params(
+      sqlStatement_booking,
+      sqlParameter_booking
+    );
+
     let select_booking_response = await db_action(params_booking, counter);
 
     // Array of all bookings
     let bookings = new Array();
 
-    let booking_list = select_booking_response.records;
+    //expected columns
+    let cols = [
+      "booking_id",
+      "booking_day",
+      "amount_netto",
+      "booking_text",
+      "booking_type",
+      "amount_history",
+    ];
 
-    //loop über bookings
-    //let one_booking = new Array();
-    booking_list.forEach((one_booking) => {
-      let booking_obj = {};
-
-      let booking_id_obj = one_booking[0];
-      booking_obj.booking_id = Object.values(booking_id_obj)[0];
-      let booking_day_obj = one_booking[1];
-      booking_obj.booking_day = Object.values(booking_day_obj)[0];
-      let booking_amount_obj = one_booking[2];
-      booking_obj.amount_netto = Number(
-        Object.values(booking_amount_obj)[0]
-      ).toFixed(2);
-      let booking_text_obj = one_booking[3];
-      booking_obj.booking_text = Object.values(booking_text_obj)[0];
-      let booking_type_obj = one_booking[4];
-      booking_obj.booking_type = Object.values(booking_type_obj)[0];
-      let amount_history_obj = one_booking[5];
-      booking_obj.amount_history = Object.values(amount_history_obj)[0];
-      bookings.push(booking_obj);
-    });
-
+    let booking_list = map_db_response(cols, select_booking_response);
 
     //Put the balance data to response
 
@@ -126,8 +108,8 @@ exports.send = async function (event, context) {
     booking_response.project = shareholder_project;
     booking_response.balance_raw = Number(balance_raw).toFixed(2);
     booking_response.balance_updated = Number(balance_update).toFixed(2);
-    booking_response.booking = bookings;
-   // console.log(JSON.stringify(booking_response), "BOOKINGS");
+    booking_response.booking = booking_list;
+    // console.log(JSON.stringify(booking_response), "BOOKINGS");
     const http_response = {
       statusCode: 200,
       headers: {

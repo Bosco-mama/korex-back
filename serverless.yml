@@ -1,17 +1,16 @@
 service: korex-back
-frameworkVersion: '2'
+frameworkVersion: "2"
 
 plugins:
   - serverless-bundle
   - serverless-pseudo-parameters
 
-
 provider:
   name: aws
   runtime: nodejs12.x
-#  lambdaHashingVersion: 20201221
-#  stage: test
-#  profile: test
+  #  lambdaHashingVersion: 20201221
+  #  stage: test
+  #  profile: test
 
   memorySize: 256
   region: eu-west-1
@@ -43,10 +42,19 @@ functions:
     timeout: 29
     maximumRetryAttempts: 1
     events:
-    - http:
-        method: GET
-        path: /bookings/{booking_account}
-        cors: true
+      - http:
+          method: GET
+          path: /bookings/{booking_account}
+          cors: true
+  korexallbookingtax:
+    handler: src/handlers/korexallbookingtax.send
+    timeout: 29
+    maximumRetryAttempts: 1
+    events:
+      - http:
+          method: GET
+          path: tax/{date_from}/{date_to}
+          cors: true
   korexcreate:
     handler: src/handlers/korexcreate.save
     timeout: 45
@@ -74,17 +82,14 @@ functions:
           method: DELETE
           path: /deletebooking/{booking_uuid}
           cors: true
- #       request:
- #         parameters:
- #           paths:
- #             booking_account: true
+  #       request:
+  #         parameters:
+  #           paths:
+  #             booking_account: true
 
 custom:
   bundle:
     linting: false
-
-
-
 # you can overwrite defaults here
 #  stage: dev
 #  region: us-east-1

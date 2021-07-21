@@ -50,30 +50,43 @@ exports.save = async function (event, context) {
 
     //update the project in DB
     let sqlStatement_project = `UPDATE korex.shareholder SET project = "${project}" WHERE shareholder_id= "${shareholder}";`;
-    let params_project = get_db_params(sqlStatement_stand);
+    let params_project = get_db_params(sqlStatement_project);
 
+    //checking if the request has a valid project
     if (!project) {
-      throw new createError.NotFound(`Shareholder "${shareholder}" not found!`);
-      {
-        console.error("Validation error");
-        http_response = {
-          statusCode: 400,
-          headers: {
-            "Access-Control-Allow-Origin": "*", // Or use wildard * for testing
-          },
-          body: JSON.stringify({
-            message: "Validation error.",
-          }),
-        };
-        return http_response;
-      }
+      console.error("request error project not found");
+      http_response = {
+        statusCode: 400,
+        headers: {
+          "request error project not found": "*", // Or use wildard * for testing
+        },
+        body: JSON.stringify({
+          message: "request error project not found",
+        }),
+      };
+      return http_response;
     }
     //the serverless DB is sleeping
     counter = 0;
     let ergebnis = "SLEEPING";
     while (ergebnis == "SLEEPING" && counter < 5) {
       ergebnis = await db_action(params_project, counter++);
-      console.log('ergebnis db',JSON.stringify(ergebnis) );
+      console.log("ergebnis db", JSON.stringify(ergebnis));
+    }
+
+    //check if Shareholder valid by checking if numberOfRecordsUpdated is 0 or 1
+    if (JSON.stringify(ergebnis.numberOfRecordsUpdated) == 0) {
+      console.error("Shareholder not found");
+      http_response = {
+        statusCode: 400,
+        headers: {
+          "Access-Control-Allow-Origin": "*", // Or use wildard * for testing
+        },
+        body: JSON.stringify({
+          message: "Shareholder not found",
+        }),
+      };
+      return http_response;
     }
 
     const http_response = {
@@ -90,7 +103,6 @@ exports.save = async function (event, context) {
   } catch (err) {
     // Handle error
     console.error(err);
-
 
     http_response = {
       statusCode: 400,
