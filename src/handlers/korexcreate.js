@@ -201,7 +201,7 @@ exports.save = async function (event, context) {
       booking_type == "Steuer"
     ) {
       let sqlStatement_insert_tax =
-        "insert into korex.booking_tax (id,booking_id, amount, tax_rate, booking_type, timestampcreated) values (:id, :booking_id, :amount, :tax_rate, :booking_type, :timestampcreated);";
+        "insert into korex.booking_tax (id,booking_id, amount, tax_rate, booking_type, timestampcreated, booking_text, booking_day) values (:id, :booking_id, :amount, :tax_rate, :booking_type, :timestampcreated, :booking_text, :booking_day);";
       let uuid_booking_tax = uuid();
       let sqlParameter_tax = [
         { name: "id", value: { stringValue: uuid_booking_tax } },
@@ -210,6 +210,8 @@ exports.save = async function (event, context) {
         { name: "tax_rate", value: { longValue: tax_rate } },
         { name: "booking_type", value: { stringValue: booking_type } },
         { name: "timestampcreated", value: { stringValue: TimestampCreated } },
+        { name: "booking_text", value: { stringValue: booking_text } },
+        { name: "booking_day", value: { stringValue: booking_day } },
       ];
       let params_insert_tax = get_db_params(
         sqlStatement_insert_tax,
